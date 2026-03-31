@@ -1,0 +1,165 @@
+[env:arduino_nano]
+platform = atmelavr
+board = nanoatmega328
+framework = arduino
+board_bootloader = atmega328old
+upload_speed = 57600
+monitor_speed = 9600
+upload_port = COM6
+
+
+
+**********************************************
+
+
+
+#include <Arduino.h>
+
+void setup() {
+  // Настройка встроенного светодиода (D13)
+  pinMode(LED_BUILTIN, OUTPUT);
+  
+  // Инициализация последовательного порта для отладки
+  Serial.begin(9600);
+  Serial.println("Arduino Nano запущена!");
+  Serial.println("Светодиод на пине D13");
+}
+
+void loop() {
+  // Включаем светодиод
+  digitalWrite(LED_BUILTIN, HIGH);
+  Serial.println("🔵 Светодиод ВКЛЮЧЕН");
+  delay(1000);  // Ждем 1 секунду
+  
+  // Выключаем светодиод
+  digitalWrite(LED_BUILTIN, LOW);
+  Serial.println("⚫ Светодиод ВЫКЛЮЧЕН");
+  delay(1000);  // Ждем 1 секунду
+
+
+
+
+****************************************************
+}
+//////////////////////////////////////////////
+
+0x3C
+*************************************************
+[env:arduino_nano]
+platform = atmelavr
+board = nanoatmega328
+framework = arduino
+lib_deps = 
+    https://github.com/avishorp/TM1637/archive/refs/heads/master.zip/
+///////////////////////////////////////////////////////  библиотека 7 сегментн
+#include <Arduino.h>  // Добавьте эту строку для PlatformIO
+#include <TM1637Display.h>
+
+// Определяем пины подключения
+#define CLK 2
+#define DIO 3
+
+// Создаем объект дисплея
+TM1637Display display(CLK, DIO);
+
+void setup() {
+  display.setBrightness(7); // Устанавливаем яркость (0-7, где 7 - самая яркая)
+  display.clear(); // Очищаем дисплей
+  delay(1000);
+}
+
+void loop() {
+  // Простой счетчик от 0 до 9999
+  for (int counter = 0; counter <= 9999; counter++) {
+    display.showNumberDec(counter); // Выводим число в десятичном формате
+    delay(10); // Скорость счета
+  }
+  
+  // Демонстрация работы с точками
+  display.showNumberDecEx(1234, 0b11100000, true); // Отобразит "1.2.3.4"
+  delay(2000);
+  
+  // Демонстрация вывода без ведущих нулей
+  display.showNumberDec(42, false); // Отобразит "  42"
+  delay(2000);
+  
+  // Очистка дисплея
+  display.clear();
+  delay(1000);
+}
+*************************************** код 7 сегмент
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**************************************** определение адреса дс 18 б 20
+#include <Arduino.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+// Пин подключения датчика
+#define ONE_WIRE_BUS 2
+
+// Настройка объектов
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Поиск датчиков DS18B20...");
+  
+  sensors.begin();
+  
+  // Поиск всех датчиков на шине
+  int deviceCount = sensors.getDeviceCount();
+  Serial.print("Найдено датчиков: ");
+  Serial.println(deviceCount);
+  
+  if (deviceCount == 0) {
+    Serial.println("Датчики не найдены! Проверьте подключение.");
+    return;
+  }
+  
+  // Вывод адресов всех найденных датчиков
+  for (int i = 0; i < deviceCount; i++) {
+    DeviceAddress deviceAddress;
+    
+    if (sensors.getAddress(deviceAddress, i)) {
+      Serial.print("Датчик ");
+      Serial.print(i + 1);
+      Serial.print(": 0x");
+      
+      // Печать адреса в HEX формате
+      for (uint8_t j = 0; j < 8; j++) {
+        if (deviceAddress[j] < 0x10) Serial.print("0");
+        Serial.print(deviceAddress[j], HEX);
+        if (j < 7) Serial.print(" ");
+      }
+      Serial.println();
+    }
+  }
+}
+
+void loop() {
+  // Не используется в этом скетче
+  delay(1000);
+}
+********************************
